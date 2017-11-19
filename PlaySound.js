@@ -325,28 +325,6 @@ class PlaySound extends Component {
 
     renderModal() {
         const { modalVisible } = this.state;
-        
-        // // Table sort by # of parameters
-        // const tableData = [
-        //     ['Energy', this.getEnergy()],
-        //     ['# of Voiced Frames', this.getVoicedFrameCount()],
-        //     ['Min./Max. Frequency', this.getMinFrequency() + '/' + this.getMaxFrequency()],
-        //     ['Min./Max. Intensity', this.getMinIntensity() + '/' + this.getMaxIntensity()],
-        //     ['Average of Intensity', this.getMeanIntensity()],
-        //     ['# of Frames', this.getFrameCount()],
-        //     ['# of Points', this.getPointCount()],
-        //     ['Get pitch at\n(time)', this.inquireTimeForPitch(), this.getPitch()],
-        //     ['Get value at\n(time)', this.inquireTimeForValue(), this.getValueAtTime()],
-        //     ['Get harmonicity at\n(time)', this.inquireTimeForHarmonicity(), this.getHarmonicityAtTime()],
-        //     ['Get value in\n(frame)', this.inquireFrameForValue(), this.getValueInFrame()],
-        //     ['Get # of Formants at\n(frame)', this.inquireFrameForFormant(), this.getFormantInFrame()],
-        //     ['Get avg. of intensity at\n(t1), (t2)', this.inquireStartTimeForIntensity(), this.inquireEndTimeForIntensity(), this.getIntensityOnTimeRange()],
-        //     ['Get min. harmonicity at\n(t1), (t2)', this.inquireStartTimeForMinHarmonicity(), this.inquireEndTimeForMinHarmonicity(), this.getMinHarmonicityOnTimeRange()],
-        //     ['Get max. harmonicity at\n(t1), t2)', this.inquireStartTimeForMaxHarmonicity(), this.inquireEndTimeForMaxHarmonicity(), this.getMaxHarmonicityOnTimeRange()],
-        //     ['Get # of Periods\n(t1), (t2)', this.inquireStartTimeForPeriodCount(), this.inquireEndTimeForPeriodCount(), this.getPeriodCountOnTimeRange()],
-        //     ['Get Jitter\n(t1), (t2)', this.inquireStartTimeForJitter(), this.inquireEndTimeForJitter(), this.getJitterOnTimeRange()],
-        //     ['Get formant value at\n(formant), (t)', this.inquireFormantForFormantValue(), this.inquireTimeForFormantValue(), this.getValueAtFormantAndTime()]
-        // ];
 
         const tableData = [
             ['Sound'],
@@ -408,55 +386,55 @@ class PlaySound extends Component {
     getEnergy() {
         const { soundEnergy } = this.state;
 
-        return (soundEnergy ? soundEnergy : LOADING_STRING);
+        return (soundEnergy ? soundEnergy : <Spinner />);
     }
 
     getVoicedFrameCount() {
         const { voicedFrameCount } = this.state;
 
-        return (voicedFrameCount ? voicedFrameCount : LOADING_STRING);
+        return (voicedFrameCount ? voicedFrameCount : <Spinner />);
     }
 
     getMinFrequency() {
         const { minFrequency } = this.state;
 
-        return (minFrequency ? minFrequency + ' Hz' : LOADING_STRING);
+        return (minFrequency ? minFrequency + ' Hz' : <Spinner />);
     }
 
     getMaxFrequency() {
         const { maxFrequency } = this.state;
         
-        return (maxFrequency ? maxFrequency + ' Hz' : LOADING_STRING);
+        return (maxFrequency ? maxFrequency + ' Hz' : <Spinner />);
     }
 
     getMinIntensity() {
         const { minIntensity } = this.state;
 
-        return (minIntensity ? minIntensity + ' dB' : LOADING_STRING);
+        return (minIntensity ? minIntensity + ' dB' : <Spinner />);
     }
 
     getMaxIntensity() {
         const { maxIntensity } = this.state;
 
-        return (maxIntensity ? maxIntensity + ' dB' : LOADING_STRING);
+        return (maxIntensity ? maxIntensity + ' dB' : <Spinner />);
     }
 
     getMeanIntensity() {
         const { meanIntensity } = this.state;
 
-        return (meanIntensity ? meanIntensity + ' dB' : LOADING_STRING);
+        return (meanIntensity ? meanIntensity + ' dB' : <Spinner />);
     }
 
     getFrameCount() {
         const { frameCount } = this.state;
 
-        return (frameCount ? frameCount : LOADING_STRING);
+        return (frameCount ? frameCount : <Spinner />);
     }
 
     getPointCount() {
         const { pointCount } = this.state;
 
-        return (pointCount ? pointCount + ' points' : LOADING_STRING);
+        return (pointCount ? pointCount + ' points' : <Spinner />);
     }
 
     inquireTimeForPitch() {
@@ -488,7 +466,7 @@ class PlaySound extends Component {
     getPitch() {
         const { fetchingPitch, pitch } = this.state;
 
-        return (fetchingPitch ? LOADING_STRING : pitch);
+        return (fetchingPitch ? <Spinner /> : pitch);
     }
 
     inquireTimeForValue() {
@@ -520,7 +498,7 @@ class PlaySound extends Component {
     getValueAtTime() {
         const { fetchingValueAtTime, valueAtTime } = this.state;
         
-        return (fetchingValueAtTime ? LOADING_STRING : valueAtTime);
+        return (fetchingValueAtTime ? <Spinner /> : valueAtTime);
     }
 
     inquireTimeForHarmonicity() {
@@ -552,7 +530,7 @@ class PlaySound extends Component {
     getHarmonicityAtTime() {
         const { fetchingHarmonicityAtTime, harmonicityAtTime } = this.state;
         
-        return (fetchingHarmonicityAtTime ? LOADING_STRING : harmonicityAtTime);
+        return (fetchingHarmonicityAtTime ? <Spinner /> : harmonicityAtTime);
     }
 
     inquireFrameForValue() {
@@ -584,7 +562,7 @@ class PlaySound extends Component {
     getValueInFrame() {
         const { fetchingValueInFrame, valueInFrame } = this.state;
         
-        return (fetchingValueInFrame ? LOADING_STRING : valueInFrame);
+        return (fetchingValueInFrame ? <Spinner /> : valueInFrame);
     }
 
     inquireFrameForFormant() {
@@ -616,7 +594,7 @@ class PlaySound extends Component {
     getFormantInFrame() {
         const { fetchingFormantInFrame, formantInFrame } = this.state;
         
-        return (fetchingFormantInFrame ? LOADING_STRING : formantInFrame);
+        return (fetchingFormantInFrame ? <Spinner /> : formantInFrame);
     }
 
     inquireStartTimeForIntensity() {
@@ -671,7 +649,7 @@ class PlaySound extends Component {
     getIntensityOnTimeRange() {
         const { fetchingIntensityOnTimeRange, intensityOnTimeRange } = this.state;
         
-        return (fetchingIntensityOnTimeRange ? LOADING_STRING : intensityOnTimeRange);
+        return (fetchingIntensityOnTimeRange ? <Spinner /> : intensityOnTimeRange);
     }
 
     inquireStartTimeForMinHarmonicity() {
@@ -721,7 +699,7 @@ class PlaySound extends Component {
     getMinHarmonicityOnTimeRange() {
         const { fetchingMinHarmonicityOnTimeRange, minHarmonicityOnTimeRange } = this.state;
         
-        return (fetchingMinHarmonicityOnTimeRange ? LOADING_STRING : minHarmonicityOnTimeRange);
+        return (fetchingMinHarmonicityOnTimeRange ? <Spinner /> : minHarmonicityOnTimeRange);
     }
 
     inquireStartTimeForMaxHarmonicity() {
@@ -771,7 +749,7 @@ class PlaySound extends Component {
     getMaxHarmonicityOnTimeRange() {
         const { fetchingMaxHarmonicityOnTimeRange, maxHarmonicityOnTimeRange } = this.state;
         
-        return (fetchingMaxHarmonicityOnTimeRange ? LOADING_STRING : maxHarmonicityOnTimeRange);
+        return (fetchingMaxHarmonicityOnTimeRange ? <Spinner /> : maxHarmonicityOnTimeRange);
     }
 
     inquireStartTimeForPeriodCount() {
@@ -821,7 +799,7 @@ class PlaySound extends Component {
     getPeriodCountOnTimeRange() {
         const { fetchingPeriodCountOnTimeRange, periodCountOnTimeRange } = this.state;
         
-        return (fetchingPeriodCountOnTimeRange ? LOADING_STRING : periodCountOnTimeRange);
+        return (fetchingPeriodCountOnTimeRange ? <Spinner /> : periodCountOnTimeRange);
     }
 
     inquireStartTimeForJitter() {
@@ -871,7 +849,7 @@ class PlaySound extends Component {
     getJitterOnTimeRange() {
         const { fetchingJitterOnTimeRange, jitterOnTimeRange } = this.state;
         
-        return (fetchingJitterOnTimeRange ? LOADING_STRING : jitterOnTimeRange);
+        return (fetchingJitterOnTimeRange ? <Spinner /> : jitterOnTimeRange);
     }
 
     inquireFormantForFormantValue() {
@@ -921,7 +899,7 @@ class PlaySound extends Component {
     getValueAtFormantAndTime() {
         const { fetchingValueAtFormantAndTime, valueAtFormantAndTime } = this.state;
         
-        return (fetchingValueAtFormantAndTime ? LOADING_STRING : valueAtFormantAndTime);
+        return (fetchingValueAtFormantAndTime ? <Spinner /> : valueAtFormantAndTime);
     }
 
     renderShowModalButton() {
