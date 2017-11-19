@@ -1,0 +1,18 @@
+{
+  "name": "react-native-peldaws",
+  "version": "0.0.0",
+  "description": "Mobile version of PELDAWS. Developed in React Native",
+  "author": null,
+  "private": true,
+  "main": "node_modules/expo/AppEntry.js",
+  "dependencies": {
+    "axios": "^0.16.2",
+    "expo": "^22.0.0",
+    "react": "16.0.0-beta.5",
+    "react-native": "https://github.com/expo/react-native/archive/sdk-22.0.1.tar.gz",
+    "react-native-elements": "^0.17.0",
+    "react-native-router-flux": "^4.0.0-beta.22",
+    "react-native-table-component": "^1.1.1",
+    "react-native-vector-icons": "^4.4.2"
+  }
+}

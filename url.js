@@ -1,0 +1,1 @@
+export const BASE_URL = 'http://peldaws2.westus.cloudapp.azure.com';
