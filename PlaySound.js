@@ -23,62 +23,83 @@ class PlaySound extends Component {
             loading: true,
             modalVisible: false,
 
-            // Sound
+            // Sound object
             soundObj: null,
             isPlaying: false,
             playbackInstancePosition: null,
             playbackInstanceDuration: null,
 
-            // Sound details
-
-            // No parameters
+            // START OF SOUND DETAILS (GROUPED BY FUNCTIONALITY)
+            
+            // Sound
             soundEnergy: null,
-            voicedFrameCount: null,
-            minFrequency: null,
-            minIntensity: null,
-            maxFrequency: null,
-            maxIntensity: null,
-            meanIntensity: null,
-            frameCount: null,
-            pointCount: null,
 
-            // 1 parameter
+            // Pitch
             fetchingPitch: false,
             pitch: INQUIRY_STRING,
+            
+            voicedFrameCount: null,
+            
             fetchingValueAtTime: false,
             valueAtTime: INQUIRY_STRING,
+
             fetchingValueInFrame: false,
             valueInFrame: INQUIRY_STRING,
-            fetchingHarmonicityAtTime: false,
-            harmonicityAtTime: INQUIRY_STRING,
-            fetchingFormantInFrame: false,
-            formantInFrame: INQUIRY_STRING,
 
-            // 2 parameters
+            // Spectrum
+            minFrequency: null,
+            maxFrequency: null,
+
+            // Intensity
             startTimeForIntensity: null,
             endTimeForIntensity: null,
             fetchingIntensityOnTimeRange: false,
             intensityOnTimeRange: INQUIRY_STRING,
+
+            minIntensity: null,
+            maxIntensity: null,
+
+            meanIntensity: null,
+
+            // Formant
+            frameCount: null,
+
+            fetchingFormantInFrame: false,
+            formantInFrame: INQUIRY_STRING,
+
+            formantForValue: null,
+            timeForValue: null,
+            fetchingValueAtFormantAndTime: false,
+            valueAtFormantAndTime: INQUIRY_STRING,            
+
+            // Harmonicity
             startTimeForMinHarmonicity: null,
             endTimeForMinHarmonicity: null,
             fetchingMinHarmonicityOnTimeRange: false,
             minHarmonicityOnTimeRange: INQUIRY_STRING,
+
             startTimeForMaxHarmonicity: null,
             endTimeForMaxHarmonicity: null,
             fetchingMaxHarmonicityOnTimeRange: false,
             maxHarmonicityOnTimeRange: INQUIRY_STRING,
+
+            fetchingHarmonicityAtTime: false,
+            harmonicityAtTime: INQUIRY_STRING,
+
+            // PointProcess
             startTimeForPeriodCount: null,
             endTimeForPeriodCount: null,
             fetchingPeriodCountOnTimeRange: false,
             periodCountOnTimeRange: INQUIRY_STRING,
+
+            pointCount: null,
+
             startTimeForJitter: null,
             endTimeForJitter: null,
             fetchingJitterOnTimeRange: false,
-            jitterOnTimeRange: INQUIRY_STRING,
-            formantForValue: null,
-            timeForValue: null,
-            fetchingValueAtFormantAndTime: false,
-            valueAtFormantAndTime: INQUIRY_STRING
+            jitterOnTimeRange: INQUIRY_STRING
+
+            // END OF SOUND DETAILS (GROUPED BY FUNCTIONALITY)
         };
     }
 
