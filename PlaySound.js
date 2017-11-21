@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, TouchableOpacity, Slider, Image, Dimensions, ScrollView, Modal, Button, TextInput, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Slider, Image, Dimensions, ScrollView, Modal, Button, TextInput, Alert, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Icon } from 'react-native-elements';
 import axios from 'axios';
 import { Table, Row, Rows } from 'react-native-table-component';
@@ -9,10 +9,11 @@ import { BASE_URL } from './url';
 const WINDOW = Dimensions.get('window');
 const APP_HEIGHT = WINDOW.height;
 const APP_WIDTH = WINDOW.width;
-const AXIOS_ERR = 'Axios Error';
+const AXIOS_ERR = 'Fetch failed';
 const LOADING_STRING = 'Loading';
-const INQUIRY_STRING = 'Please enter value(s)';
+// const INQUIRY_STRING = 'Please enter value(s)'; // to be deleted once buttons are running fine as replacements
 const NAN_STRING = 'NaN';
+const GO_STRING = 'Go';
 
 class PlaySound extends Component {
     constructor(props) {
@@ -29,22 +30,25 @@ class PlaySound extends Component {
             playbackInstancePosition: null,
             playbackInstanceDuration: null,
 
-            // START OF SOUND DETAILS (GROUPED BY FUNCTIONALITY)
+            /* START OF SOUND DETAILS (GROUPED BY FUNCTIONALITY) */
             
             // Sound
             soundEnergy: null,
 
             // Pitch
+            timePitchInput: null,
             fetchingPitch: false,
-            pitch: INQUIRY_STRING,
+            pitch: <Button title={GO_STRING} onPress={() => this.fetchPitchAt(this.state.timePitchInput)} />,
             
             voicedFrameCount: null,
             
+            timeValueInput: null,
             fetchingValueAtTime: false,
-            valueAtTime: INQUIRY_STRING,
+            valueAtTime: <Button title={GO_STRING} onPress={() => this.fetchValueAtTime(this.state.timeValueInput)} /> ,
 
+            frameValueInput: null,
             fetchingValueInFrame: false,
-            valueInFrame: INQUIRY_STRING,
+            valueInFrame: <Button title={GO_STRING} onPress={() => this.fetchValueInFrame(this.state.frameValueInput)} />,
 
             // Spectrum
             minFrequency: null,
@@ -54,7 +58,7 @@ class PlaySound extends Component {
             startTimeForIntensity: null,
             endTimeForIntensity: null,
             fetchingIntensityOnTimeRange: false,
-            intensityOnTimeRange: INQUIRY_STRING,
+            intensityOnTimeRange: <Button title={GO_STRING} onPress={() => this.fetchIntensityOnTimeRange()} />,
 
             minIntensity: null,
             maxIntensity: null,
@@ -64,42 +68,44 @@ class PlaySound extends Component {
             // Formant
             frameCount: null,
 
+            frameFormantInput: null,
             fetchingFormantInFrame: false,
-            formantInFrame: INQUIRY_STRING,
+            formantInFrame: <Button title={GO_STRING} onPress={() => this.fetchFormantInFrame(this.state.frameFormantInput)} />,
 
             formantForValue: null,
             timeForValue: null,
             fetchingValueAtFormantAndTime: false,
-            valueAtFormantAndTime: INQUIRY_STRING,            
+            valueAtFormantAndTime: <Button title={GO_STRING} onPress={() => this.fetchValueAtFormantAndTime()} />,            
 
             // Harmonicity
             startTimeForMinHarmonicity: null,
             endTimeForMinHarmonicity: null,
             fetchingMinHarmonicityOnTimeRange: false,
-            minHarmonicityOnTimeRange: INQUIRY_STRING,
+            minHarmonicityOnTimeRange: <Button title={GO_STRING} onPress={() => this.fetchMinHarmonicityOnTimeRange()} />,
 
             startTimeForMaxHarmonicity: null,
             endTimeForMaxHarmonicity: null,
             fetchingMaxHarmonicityOnTimeRange: false,
-            maxHarmonicityOnTimeRange: INQUIRY_STRING,
+            maxHarmonicityOnTimeRange: <Button title={GO_STRING} onPress={() => this.fetchMaxHarmonicityOnTimeRange()} />,
 
+            timeHarmonicityInput: null,
             fetchingHarmonicityAtTime: false,
-            harmonicityAtTime: INQUIRY_STRING,
+            harmonicityAtTime: <Button title={GO_STRING} onPress={() => this.fetchHarmonicityAtTime(this.state.timeHarmonicityInput)} />,
 
             // PointProcess
             startTimeForPeriodCount: null,
             endTimeForPeriodCount: null,
             fetchingPeriodCountOnTimeRange: false,
-            periodCountOnTimeRange: INQUIRY_STRING,
+            periodCountOnTimeRange: <Button title={GO_STRING} onPress={() => this.fetchPeriodCountOnTimeRange()} />,
 
             pointCount: null,
 
             startTimeForJitter: null,
             endTimeForJitter: null,
             fetchingJitterOnTimeRange: false,
-            jitterOnTimeRange: INQUIRY_STRING
+            jitterOnTimeRange: <Button title={GO_STRING} onPress={() => this.fetchJitterOnTimeRange()} />
 
-            // END OF SOUND DETAILS (GROUPED BY FUNCTIONALITY)
+            /* END OF SOUND DETAILS (GROUPED BY FUNCTIONALITY) */
         };
     }
 
@@ -358,11 +364,11 @@ class PlaySound extends Component {
             ['Get value in\n(frame)', this.inquireFrameForValue(), this.getValueInFrame()],
 
             ['Spectrum'],
-            ['Min./Max. Frequency', this.getMinFrequency() + '/' + this.getMaxFrequency()],
+            ['Min./Max. Frequency', this.getMinAndMaxFrequency()],
 
             ['Intensity'],
             ['Get avg. of intensity at\n(t1), (t2)', this.inquireStartTimeForIntensity(), this.inquireEndTimeForIntensity(), this.getIntensityOnTimeRange()],
-            ['Min./Max. Intensity', this.getMinIntensity() + '/' + this.getMaxIntensity()],
+            ['Min./Max. Intensity', this.getMinAndMaxIntensity()],
             ['Average of Intensity', this.getMeanIntensity()],
 
             ['Formant'],
@@ -416,28 +422,16 @@ class PlaySound extends Component {
         return (voicedFrameCount ? voicedFrameCount : <Spinner />);
     }
 
-    getMinFrequency() {
-        const { minFrequency } = this.state;
+    getMinAndMaxFrequency() {
+        const { minFrequency, maxFrequency } = this.state;
 
-        return (minFrequency ? minFrequency + ' Hz' : <Spinner />);
+        return ( minFrequency && maxFrequency ? minFrequency + ' Hz/' + maxFrequency + ' Hz' : <Spinner />);
     }
 
-    getMaxFrequency() {
-        const { maxFrequency } = this.state;
+    getMinAndMaxIntensity() {
+        const { minIntensity, maxIntensity } = this.state;
         
-        return (maxFrequency ? maxFrequency + ' Hz' : <Spinner />);
-    }
-
-    getMinIntensity() {
-        const { minIntensity } = this.state;
-
-        return (minIntensity ? minIntensity + ' dB' : <Spinner />);
-    }
-
-    getMaxIntensity() {
-        const { maxIntensity } = this.state;
-
-        return (maxIntensity ? maxIntensity + ' dB' : <Spinner />);
+        return ( minIntensity && maxIntensity ? minIntensity + ' dB/' + maxIntensity + ' dB' : <Spinner />);
     }
 
     getMeanIntensity() {
@@ -462,7 +456,11 @@ class PlaySound extends Component {
         return (
             <TextInput
                 keyboardType={'numeric'}
+                onChangeText={(timePitchInput) => this.setState({ timePitchInput })}
                 onSubmitEditing={(event) => this.fetchPitchAt(event.nativeEvent.text)}
+                onFocus={() => this.setState({ 
+                    pitch: <Button title={GO_STRING} onPress={() => this.fetchPitchAt(this.state.timePitchInput)} /> 
+                })}
             />
         );
     }
@@ -494,7 +492,11 @@ class PlaySound extends Component {
         return (
             <TextInput
                 keyboardType={'numeric'}
+                onChangeText={(timeValueInput) => this.setState({ timeValueInput })}
                 onSubmitEditing={(event) => this.fetchValueAtTime(event.nativeEvent.text)}
+                onFocus={() => this.setState({
+                    valueAtTime: <Button title={GO_STRING} onPress={() => this.fetchValueAtTime(this.state.timeValueInput)} /> 
+                })}
             />
         );
     }
@@ -526,7 +528,11 @@ class PlaySound extends Component {
         return (
             <TextInput
                 keyboardType={'numeric'}
+                onChangeText={(timeHarmonicityInput) => this.setState({ timeHarmonicityInput })}
                 onSubmitEditing={(event) => this.fetchHarmonicityAtTime(event.nativeEvent.text)}
+                onFocus={() => this.setState({
+                    harmonicityAtTime: <Button title={GO_STRING} onPress={() => this.fetchHarmonicityAtTime(this.state.timeHarmonicityInput)} />
+                })}
             />
         );
     }
@@ -558,7 +564,11 @@ class PlaySound extends Component {
         return (
             <TextInput
                 keyboardType={'numeric'}
+                onChangeText={(frameValueInput) => this.setState({ frameValueInput })}
                 onSubmitEditing={(event) => this.fetchValueInFrame(event.nativeEvent.text)}
+                onFocus={() => this.setState({
+                    valueInFrame: <Button title={GO_STRING} onPress={() => this.fetchValueInFrame(this.state.frameValueInput)} />
+                })}
             />
         );
     }
@@ -590,7 +600,11 @@ class PlaySound extends Component {
         return (
             <TextInput
                 keyboardType={'numeric'}
+                onChangeText={(frameFormantInput) => this.setState({ frameFormantInput })}
                 onSubmitEditing={(event) => this.fetchFormantInFrame(event.nativeEvent.text)}
+                onFocus={() => this.setState({
+                    formantInFrame: <Button title={GO_STRING} onPress={() => this.fetchFormantInFrame(this.state.frameFormantInput)} />
+                })}
             />
         );
     }
@@ -622,9 +636,11 @@ class PlaySound extends Component {
         return (
             <TextInput
                 onChangeText={(startTimeForIntensity) => this.setState({ startTimeForIntensity })}
-                value={this.state.startTimeForIntensity}
                 keyboardType={'numeric'}
                 onSubmitEditing={() => this.fetchIntensityOnTimeRange()}
+                onFocus={() => this.setState({
+                    intensityOnTimeRange: <Button title={GO_STRING} onPress={() => this.fetchIntensityOnTimeRange()} />
+                })}
             />
         );
     }
@@ -633,9 +649,11 @@ class PlaySound extends Component {
         return (
             <TextInput
                 onChangeText={(endTimeForIntensity) => this.setState({ endTimeForIntensity })}
-                value={this.state.endTimeForIntensity}
                 keyboardType={'numeric'}
                 onSubmitEditing={() => this.fetchIntensityOnTimeRange()}
+                onFocus={() => this.setState({
+                    intensityOnTimeRange: <Button title={GO_STRING} onPress={() => this.fetchIntensityOnTimeRange()} />
+                })}
             />
         );
     }
@@ -677,9 +695,11 @@ class PlaySound extends Component {
         return (
             <TextInput
                 onChangeText={(startTimeForMinHarmonicity) => this.setState({ startTimeForMinHarmonicity })}
-                value={this.state.startTimeForMinHarmonicity}
                 keyboardType={'numeric'}
                 onSubmitEditing={() => this.fetchMinHarmonicityOnTimeRange()}
+                onFocus={() => this.setState({
+                    minHarmonicityOnTimeRange: <Button title={GO_STRING} onPress={() => this.fetchMinHarmonicityOnTimeRange()} />
+                })}
             />
         );
     }
@@ -688,9 +708,11 @@ class PlaySound extends Component {
         return (
             <TextInput
                 onChangeText={(endTimeForMinHarmonicity) => this.setState({ endTimeForMinHarmonicity })}
-                value={this.state.endTimeForMinHarmonicity}
                 keyboardType={'numeric'}
                 onSubmitEditing={() => this.fetchMinHarmonicityOnTimeRange()}
+                onFocus={() => this.setState({
+                    minHarmonicityOnTimeRange: <Button title={GO_STRING} onPress={() => this.fetchMinHarmonicityOnTimeRange()} />
+                })}
             />
         );
     }
@@ -727,9 +749,11 @@ class PlaySound extends Component {
         return (
             <TextInput
                 onChangeText={(startTimeForMaxHarmonicity) => this.setState({ startTimeForMaxHarmonicity })}
-                value={this.state.startTimeForMaxHarmonicity}
                 keyboardType={'numeric'}
                 onSubmitEditing={() => this.fetchMaxHarmonicityOnTimeRange()}
+                onFocus={() => this.setState({
+                    maxHarmonicityOnTimeRange: <Button title={GO_STRING} onPress={() => this.fetchMaxHarmonicityOnTimeRange()} />
+                })}
             />
         );
     }
@@ -738,9 +762,11 @@ class PlaySound extends Component {
         return (
             <TextInput
                 onChangeText={(endTimeForMaxHarmonicity) => this.setState({ endTimeForMaxHarmonicity })}
-                value={this.state.endTimeForMaxHarmonicity}
                 keyboardType={'numeric'}
                 onSubmitEditing={() => this.fetchMaxHarmonicityOnTimeRange()}
+                onFocus={() => this.setState({
+                    maxHarmonicityOnTimeRange: <Button title={GO_STRING} onPress={() => this.fetchMaxHarmonicityOnTimeRange()} />
+                })}
             />
         );
     }
@@ -777,9 +803,11 @@ class PlaySound extends Component {
         return (
             <TextInput
                 onChangeText={(startTimeForPeriodCount) => this.setState({ startTimeForPeriodCount })}
-                value={this.state.startTimeForPeriodCount}
                 keyboardType={'numeric'}
                 onSubmitEditing={() => this.fetchPeriodCountOnTimeRange()}
+                onFocus={() => this.setState({
+                    periodCountOnTimeRange: <Button title={GO_STRING} onPress={() => this.fetchPeriodCountOnTimeRange()} />
+                })}
             />
         );
     }
@@ -788,9 +816,11 @@ class PlaySound extends Component {
         return (
             <TextInput
                 onChangeText={(endTimeForPeriodCount) => this.setState({ endTimeForPeriodCount })}
-                value={this.state.endTimeForPeriodCount}
                 keyboardType={'numeric'}
                 onSubmitEditing={() => this.fetchPeriodCountOnTimeRange()}
+                onFocus={() => this.setState({
+                    periodCountOnTimeRange: <Button title={GO_STRING} onPress={() => this.fetchPeriodCountOnTimeRange()} />
+                })}
             />
         );
     }
@@ -827,9 +857,11 @@ class PlaySound extends Component {
         return (
             <TextInput
                 onChangeText={(startTimeForJitter) => this.setState({ startTimeForJitter })}
-                value={this.state.startTimeForJitter}
                 keyboardType={'numeric'}
                 onSubmitEditing={() => this.fetchJitterOnTimeRange()}
+                onFocus={() => this.setState({
+                    jitterOnTimeRange: <Button title={GO_STRING} onPress={() => this.fetchJitterOnTimeRange()} />
+                })}
             />
         );
     }
@@ -838,9 +870,11 @@ class PlaySound extends Component {
         return (
             <TextInput
                 onChangeText={(endTimeForJitter) => this.setState({ endTimeForJitter })}
-                value={this.state.endTimeForJitter}
                 keyboardType={'numeric'}
                 onSubmitEditing={() => this.fetchJitterOnTimeRange()}
+                onFocus={() => this.setState({
+                    jitterOnTimeRange: <Button title={GO_STRING} onPress={() => this.fetchJitterOnTimeRange()} />
+                })}
             />
         );
     }
@@ -877,9 +911,11 @@ class PlaySound extends Component {
         return (
             <TextInput
                 onChangeText={(formantForValue) => this.setState({ formantForValue })}
-                value={this.state.formantForValue}
                 keyboardType={'numeric'}
                 onSubmitEditing={() => this.fetchValueAtFormantAndTime()}
+                onFocus={() => this.setState({
+                    valueAtFormantAndTime: <Button title={GO_STRING} onPress={() => this.fetchValueAtFormantAndTime()} />
+                })}
             />
         );
     }
@@ -888,9 +924,11 @@ class PlaySound extends Component {
         return (
             <TextInput
                 onChangeText={(timeForValue) => this.setState({ timeForValue })}
-                value={this.state.timeForValue}
                 keyboardType={'numeric'}
                 onSubmitEditing={() => this.fetchValueAtFormantAndTime()}
+                onFocus={() => this.setState({
+                    valueAtFormantAndTime: <Button title={GO_STRING} onPress={() => this.fetchValueAtFormantAndTime()} />
+                })}
             />
         );
     }
