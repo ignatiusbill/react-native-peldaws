@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import axios from 'axios';
 import { List, ListItem } from 'react-native-elements';
 import { Actions } from 'react-native-router-flux';
-import { BASE_URL } from './url';
+import { BASE_URL } from '../url';
 
 class SoundList extends Component {
   state = {

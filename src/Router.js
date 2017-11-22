@@ -1,7 +1,7 @@
 import React from 'react';
 import { Scene, Router, Actions } from 'react-native-router-flux';
-import SoundList from './SoundList';
-import PlaySound from './PlaySound';
+import SoundList from './screens/SoundList';
+import PlaySound from './screens/PlaySound';
 
 const RouterComponent = () => {
     return (

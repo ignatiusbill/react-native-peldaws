@@ -3,8 +3,8 @@ import { View, Text, TouchableOpacity, Slider, Image, Dimensions, ScrollView, Mo
 import { Icon } from 'react-native-elements';
 import axios from 'axios';
 import { Table, Row, Rows } from 'react-native-table-component';
-import Spinner from './Spinner';
-import { BASE_URL } from './url';
+import Spinner from '../components/Spinner';
+import { BASE_URL } from '../url';
 
 const WINDOW = Dimensions.get('window');
 const APP_HEIGHT = WINDOW.height;
