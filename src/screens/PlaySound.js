@@ -20,18 +20,20 @@ class PlaySound extends Component {
         super(props);
         this.isSeeking = false;
         this.state = {
-            // UI
-            loading: true,
-            modalVisible: false,
+            /* START OF STATES FOR SOUND OBJECT */
 
-            // Sound object
+            fetchingSoundObj: true,
             soundObj: null,
             isPlaying: false,
             playbackInstancePosition: null,
             playbackInstanceDuration: null,
 
-            /* START OF SOUND DETAILS (GROUPED BY FUNCTIONALITY) */
+            /* END OF STATES FOR SOUND OBJECT */
+
+            /* START OF STATES FOR SOUND DETAILS (GROUPED BY FUNCTIONALITY) */
             
+            modalVisible: false,
+
             // Sound
             soundEnergy: null,
 
@@ -105,7 +107,7 @@ class PlaySound extends Component {
             fetchingJitterOnTimeRange: false,
             jitterOnTimeRange: <Button title={GO_STRING} onPress={() => this.fetchJitterOnTimeRange()} />
 
-            /* END OF SOUND DETAILS (GROUPED BY FUNCTIONALITY) */
+            /* END OF STATES FOR SOUND DETAILS (GROUPED BY FUNCTIONALITY) */
         };
     }
 
@@ -126,7 +128,7 @@ class PlaySound extends Component {
 
         await soundObj.loadAsync({ uri: soundURI });
         soundObj.setOnPlaybackStatusUpdate(this.onPlaybackStatusUpdate);
-        this.setState({ loading: false, soundObj });
+        this.setState({ fetchingSoundObj: false, soundObj });
     }
 
     fetchEnergy() {
@@ -237,10 +239,10 @@ class PlaySound extends Component {
 
     renderSoundPlaybackInstance() {
         const { soundName } = this.props;
-        const { loading, soundObj, modalVisible } = this.state;
+        const { fetchingSoundObj, soundObj, modalVisible } = this.state;
         const { playbackSliderStyle, containerStyle } = styles;
         
-        if (loading) return <Spinner />;
+        if (fetchingSoundObj) return <Spinner />;
 
         if (soundObj) {
             return (
