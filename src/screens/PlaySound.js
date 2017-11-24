@@ -1,19 +1,24 @@
 import React, { Component } from 'react';
 import { View, Text, TouchableOpacity, Slider, Image, Dimensions, ScrollView, Modal, Button, TextInput, Alert, TouchableWithoutFeedback, Keyboard } from 'react-native';
-import { Icon } from 'react-native-elements';
+import { Icon, CheckBox } from 'react-native-elements';
 import axios from 'axios';
 import { Table, Row, Rows } from 'react-native-table-component';
 import Spinner from '../components/Spinner';
 import { BASE_URL } from '../url';
 
+/* START OF GLOBAL VARIABLES */
+
+// Don't modify these dynamically! You can modify this manually, especially the numbers (int/double/float), as long as you know what you're doing.
 const WINDOW = Dimensions.get('window');
 const APP_HEIGHT = WINDOW.height;
 const APP_WIDTH = WINDOW.width;
 const AXIOS_ERR = 'Fetch failed';
 const LOADING_STRING = 'Loading';
-// const INQUIRY_STRING = 'Please enter value(s)'; // to be deleted once buttons are running fine as replacements
 const NAN_STRING = 'NaN';
 const GO_STRING = 'Go';
+const NUMBER_OF_SECTIONS = 18;
+
+/* END OF GLOBAL VARIABLES */
 
 class PlaySound extends Component {
     constructor(props) {
@@ -32,7 +37,8 @@ class PlaySound extends Component {
 
             /* START OF STATES FOR SOUND DETAILS (GROUPED BY FUNCTIONALITY) */
             
-            modalVisible: false,
+            soundDetailModalVisible: false,
+            filterModalVisible: false,
 
             // Sound
             soundEnergy: null,
@@ -105,9 +111,22 @@ class PlaySound extends Component {
             startTimeForJitter: null,
             endTimeForJitter: null,
             fetchingJitterOnTimeRange: false,
-            jitterOnTimeRange: <Button title={GO_STRING} onPress={() => this.fetchJitterOnTimeRange()} />
+            jitterOnTimeRange: <Button title={GO_STRING} onPress={() => this.fetchJitterOnTimeRange()} />,
 
             /* END OF STATES FOR SOUND DETAILS (GROUPED BY FUNCTIONALITY) */
+
+            // rowVisibilityArrays' content has a tight coupling with data inside the function renderModal().
+            // Be careful when modifying one or the other.
+            rowVisibilityArrays: {
+                sound: { rowVisibilityArray: [true] },
+                pitch: { rowVisibilityArray: [true, true, true, true] },
+                spectrum: { rowVisibilityArray: [true] },
+                intensity: { rowVisibilityArray: [true, true, true] },
+                formant: { rowVisibilityArray: [true, true, true] },
+                harmonicity: { rowVisibilityArray: [true, true, true] },
+                pointProcess: { rowVisibilityArray: [true, true, true] },
+                count: NUMBER_OF_SECTIONS
+            }
         };
     }
 
@@ -239,7 +258,7 @@ class PlaySound extends Component {
 
     renderSoundPlaybackInstance() {
         const { soundName } = this.props;
-        const { fetchingSoundObj, soundObj, modalVisible } = this.state;
+        const { fetchingSoundObj, soundObj, soundDetailModalVisible } = this.state;
         const { playbackSliderStyle, containerStyle } = styles;
         
         if (fetchingSoundObj) return <Spinner />;
@@ -353,61 +372,257 @@ class PlaySound extends Component {
     }
 
     renderModal() {
-        const { modalVisible } = this.state;
+        // data's content has a tight coupling with rowVisibilityArrays inside this component's state.
+        // Be careful when modifying one or the other.
+        const data = {
+            sound: {
+                tableHead: ['Sound'],
+                tableData: [
+                    ['Energy', this.getEnergy()],
+                ],
+                tableDescription: [
+                    'Energy'
+                ],
+                rowVisibilityArray: [true]
+            },
+            pitch: {
+                tableHead: ['Pitch'],
+                tableData: [
+                    ['Get pitch at\n(time)', this.inquireTimeForPitch(), this.getPitch()],
+                    ['# of Voiced Frames', this.getVoicedFrameCount()],
+                    ['Get value at\n(time)', this.inquireTimeForValue(), this.getValueAtTime()],
+                    ['Get value in\n(frame)', this.inquireFrameForValue(), this.getValueInFrame()],
+                ],
+                tableDescription: [
+                    'Pitch at time X',
+                    '# of Voiced Frames',
+                    'Value at time X',
+                    'Value in frame X'
+                ],
+                rowVisibilityArray: [true, true, true, true]
+            },
+            spectrum: {
+                tableHead: ['Spectrum'],
+                tableData: [
+                    ['Min./Max. Frequency', this.getMinAndMaxFrequency()],
+                ],
+                tableDescription: [
+                    'Min./Max. Frequency'
+                ],
+                rowVisibilityArray: [true]
+            },
+            intensity: {
+                tableHead: ['Intensity'],
+                tableData: [
+                    ['Get avg. of intensity at\n(t1), (t2)', this.inquireStartTimeForIntensity(), this.inquireEndTimeForIntensity(), this.getIntensityOnTimeRange()],
+                    ['Min./Max. Intensity', this.getMinAndMaxIntensity()],
+                    ['Average of Intensity', this.getMeanIntensity()],
+                ],
+                tableDescription: [
+                    'Average of Intensity between time X and Y',
+                    'Min./Max. Intensity',
+                    'Average of Intensity'
+                ],
+                rowVisibilityArray: [true, true, true]
+            },
+            formant: {
+                tableHead: ['Formant'],
+                tableData: [
+                    ['# of Frames', this.getFrameCount()],
+                    ['Get # of Formants at\n(frame)', this.inquireFrameForFormant(), this.getFormantInFrame()],
+                    ['Get formant value at\n(formant), (t)', this.inquireFormantForFormantValue(), this.inquireTimeForFormantValue(), this.getValueAtFormantAndTime()],
+                ],
+                tableDescription: [
+                    '# of Frames',
+                    '# of Formants at frame X',
+                    'Formant value at formant X'
+                ],
+                rowVisibilityArray: [true, true, true]
+            },
+            harmonicity: {
+                tableHead: ['Harmonicity'],
+                tableData: [
+                    ['Get min. harmonicity at\n(t1), (t2)', this.inquireStartTimeForMinHarmonicity(), this.inquireEndTimeForMinHarmonicity(), this.getMinHarmonicityOnTimeRange()],
+                    ['Get max. harmonicity at\n(t1), t2)', this.inquireStartTimeForMaxHarmonicity(), this.inquireEndTimeForMaxHarmonicity(), this.getMaxHarmonicityOnTimeRange()],
+                    ['Get harmonicity at\n(time)', this.inquireTimeForHarmonicity(), this.getHarmonicityAtTime()],
+                ],
+                tableDescription: [
+                    'Min. harmonicity between time X and Y',
+                    'Max. harmonicity between time X and Y',
+                    'Harmonicity at time X'
+                ],
+                rowVisibilityArray: [true, true, true]
+            },
+            pointProcess: {
+                tableHead: ['PointProcess'],
+                tableData: [
+                    ['Get # of Periods\n(t1), (t2)', this.inquireStartTimeForPeriodCount(), this.inquireEndTimeForPeriodCount(), this.getPeriodCountOnTimeRange()],
+                    ['# of Points', this.getPointCount()],
+                    ['Get Jitter\n(t1), (t2)', this.inquireStartTimeForJitter(), this.inquireEndTimeForJitter(), this.getJitterOnTimeRange()],
+                ],
+                tableDescription: [
+                    '# of Periods between time X and Y',
+                    '# of Points',
+                    'Jitter between time X and Y'
+                ],
+                rowVisibilityArray: [true, true, true]
+            },
+        };
 
-        const tableData = [
-            ['Sound'],
-            ['Energy', this.getEnergy()],
+        const { containerStyle, tableStyle, soundDetailCheckBoxesContainerStyle, tableBorderStyle, tableHeadStyle, tableHeadTextStyle, tableBodyStyle, tableBodyTextStyle } = styles;
+        
+        renderSoundDetailCheckBoxes = (data, rowVisibilityArrays) => {
+            let buffer = [];
+            for (let key in data) {
+                const currentObj = rowVisibilityArrays[key];
+                if (currentObj.hasOwnProperty('rowVisibilityArray')) {
+                    buffer.push(
+                        <Table style={tableStyle} borderStyle={tableBorderStyle}>
+                            <Row data={data[key].tableHead} style={tableHeadStyle} textStyle={tableHeadTextStyle} />
+                        </Table>
+                    );
 
-            ['Pitch'],
-            ['Get pitch at\n(time)', this.inquireTimeForPitch(), this.getPitch()],
-            ['# of Voiced Frames', this.getVoicedFrameCount()],
-            ['Get value at\n(time)', this.inquireTimeForValue(), this.getValueAtTime()],
-            ['Get value in\n(frame)', this.inquireFrameForValue(), this.getValueInFrame()],
+                    const currentRowVisibilityArray = rowVisibilityArrays[key].rowVisibilityArray;
+                    for (let i = 0; i < currentRowVisibilityArray.length; i++) {
+                        buffer.push(
+                            <CheckBox
+                                title={data[key].tableDescription[i]}
+                                checked={rowVisibilityArrays[key].rowVisibilityArray[i]}
+                                onPress={() => {
+                                    let newState = rowVisibilityArrays;
+                                    newState[key].rowVisibilityArray[i] = !newState[key].rowVisibilityArray[i];
 
-            ['Spectrum'],
-            ['Min./Max. Frequency', this.getMinAndMaxFrequency()],
+                                    if (!newState[key].rowVisibilityArray[i]) {
+                                        newState.count--;
+                                    } else {
+                                        newState.count++;
+                                    }
 
-            ['Intensity'],
-            ['Get avg. of intensity at\n(t1), (t2)', this.inquireStartTimeForIntensity(), this.inquireEndTimeForIntensity(), this.getIntensityOnTimeRange()],
-            ['Min./Max. Intensity', this.getMinAndMaxIntensity()],
-            ['Average of Intensity', this.getMeanIntensity()],
+                                    this.setState({ rowVisibilityArrays: newState });
+                                }}
+                                containerStyle={soundDetailCheckBoxesContainerStyle}
+                            />
+                        );
+                    }
+                }
+                
+            }
 
-            ['Formant'],
-            ['# of Frames', this.getFrameCount()],
-            ['Get # of Formants at\n(frame)', this.inquireFrameForFormant(), this.getFormantInFrame()],
-            ['Get formant value at\n(formant), (t)', this.inquireFormantForFormantValue(), this.inquireTimeForFormantValue(), this.getValueAtFormantAndTime()],
+            return buffer;
+        }
 
-            ['Harmonicity'],
-            ['Get min. harmonicity at\n(t1), (t2)', this.inquireStartTimeForMinHarmonicity(), this.inquireEndTimeForMinHarmonicity(), this.getMinHarmonicityOnTimeRange()],
-            ['Get max. harmonicity at\n(t1), t2)', this.inquireStartTimeForMaxHarmonicity(), this.inquireEndTimeForMaxHarmonicity(), this.getMaxHarmonicityOnTimeRange()],
-            ['Get harmonicity at\n(time)', this.inquireTimeForHarmonicity(), this.getHarmonicityAtTime()],
+        setAllSectionsVisible = (booleanValue, rowVisibilityArrays) => {
+            let newState = rowVisibilityArrays;
+            if (booleanValue){
+                newState.count = NUMBER_OF_SECTIONS;
+            } else {
+                newState.count = 0;
+            }
+            
+            for (let key in data) {
+                const currentObj = rowVisibilityArrays[key];
+                if (currentObj.hasOwnProperty('rowVisibilityArray')) {
+                    const currentRowVisibilityArray = rowVisibilityArrays[key].rowVisibilityArray;
+                    for (let i = 0; i < currentRowVisibilityArray.length; i++) {
+                        currentRowVisibilityArray[i] = booleanValue
+                    }
+                }
+            }
 
-            ['PointProcess'],
-            ['Get # of Periods\n(t1), (t2)', this.inquireStartTimeForPeriodCount(), this.inquireEndTimeForPeriodCount(), this.getPeriodCountOnTimeRange()],
-            ['# of Points', this.getPointCount()],
-            ['Get Jitter\n(t1), (t2)', this.inquireStartTimeForJitter(), this.inquireEndTimeForJitter(), this.getJitterOnTimeRange()],
-        ];
+            this.setState({ rowVisibilityArrays: newState });
+        }
+
+        // Pushes rows that are checked by user in the filter function into a buffer array. O(n) runtime, O(n) space.
+        renderSoundDetails = (data, rowVisibilityArrays) => {
+            let buffer = [];
+            for (let key in data) {
+                const currentObj = rowVisibilityArrays[key];
+                if (currentObj.hasOwnProperty('rowVisibilityArray')) {
+                    const currentRowVisibilityArray = rowVisibilityArrays[key].rowVisibilityArray;
+                    let tableHeadAdded = false;
+                    for (let i = 0; i < currentRowVisibilityArray.length; i++) {
+                        if (currentRowVisibilityArray[i]) {
+                            if (!tableHeadAdded) {
+                                buffer.push(<Row data={data[key].tableHead} style={tableHeadStyle} textStyle={tableHeadTextStyle} />);
+                                tableHeadAdded = true;
+                            }
+                            
+                            buffer.push(<Row data={data[key].tableData[i]} style={tableBodyStyle} textStyle={tableBodyTextStyle} />);
+                        }
+                    }
+                }
+            }
+
+            return buffer;
+        }
+        
+        const { soundDetailModalVisible, filterModalVisible, rowVisibilityArrays } = this.state;
 
         return (
             <Modal
                 animationType='slide'
                 transparent={false}
-                visible={modalVisible}
-                onRequestClose={() => this.setModalVisible(!modalVisible)}
+                visible={soundDetailModalVisible}
+                onRequestClose={() => this.setSoundDetailModalVisible(!soundDetailModalVisible)}
             >
-                <ScrollView>
-                    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-                        <Table style={{ width: APP_WIDTH - (APP_WIDTH * 0.1) }} borderStyle={{ borderWidth: 0.5, borderColor: '#c8e1ff'}}>
-                            <Rows data={tableData} style={{ height: 50 }} textStyle={{ textAlign: 'center' }} />
-                        </Table>
-                    </View>
+                <View>
+                    <ScrollView>
+                        {/* START OF FILTER FUNCTION */}
+                        <Button 
+                            title='Filter'
+                            onPress={() => this.setFilterModalVisible(!filterModalVisible)}
+                        />
+                        
+                        <Modal
+                            animationType='slide'
+                            transparent={false}
+                            visible={filterModalVisible}
+                            onRequestClose={() => this.setFilterModalVisible(!filterModalVisible)}
+                        >
+                            <ScrollView>
+                                <View style={[{ flex: 1, flexDirection: 'row', alignSelf: 'center' }, soundDetailCheckBoxesContainerStyle]}>
+                                    <CheckBox
+                                        title={'Select All'}
+                                        checked={rowVisibilityArrays.count === NUMBER_OF_SECTIONS}
+                                        onPress={() => setAllSectionsVisible(true, rowVisibilityArrays)}
+                                        containerStyle={{ flex: 1 }}
+                                    />
 
-                    <Button
-                        title='Close'
-                        onPress={() => this.setModalVisible(!modalVisible)}
-                    />
-                </ScrollView>
+                                    <CheckBox
+                                        title={'Unselect All'}
+                                        checked={rowVisibilityArrays.count === 0}
+                                        onPress={() => setAllSectionsVisible(false, rowVisibilityArrays)}
+                                        containerStyle={{ flex: 1 }}
+                                    />
+                                </View>
+
+                                <View style={containerStyle}>
+                                    {renderSoundDetailCheckBoxes(data, rowVisibilityArrays)}
+                                </View>
+
+                                <Button 
+                                    title='Show Selected Items'
+                                    onPress={() => {
+                                        this.setFilterModalVisible(!filterModalVisible);
+                                        this.forceUpdate();
+                                    }}
+                                />
+                            </ScrollView>
+                        </Modal>
+                        {/* END OF FILTER FUNCTION */}
+                        
+                        <View style={containerStyle}>
+                            <Table style={tableStyle} borderStyle={tableBorderStyle}>
+                                {renderSoundDetails(data, rowVisibilityArrays)}
+                            </Table>
+                        </View>
+
+                        <Button
+                            title='Close'
+                            onPress={() => this.setSoundDetailModalVisible(!soundDetailModalVisible)}
+                        />
+                    </ScrollView>
+                </View>
             </Modal>
         );
     }
@@ -964,18 +1179,22 @@ class PlaySound extends Component {
     }
 
     renderShowModalButton() {
-        const { modalVisible } = this.state;
+        const { soundDetailModalVisible } = this.state;
 
         return (
             <Button
                 title='More Details'
-                onPress={() => this.setModalVisible(!modalVisible)}
+                onPress={() => this.setSoundDetailModalVisible(!soundDetailModalVisible)}
             />
         );
     }
 
-    setModalVisible(visible) {
-        this.setState({ modalVisible: visible });
+    setSoundDetailModalVisible(visible) {
+        this.setState({ soundDetailModalVisible: visible });
+    }
+
+    setFilterModalVisible(visible) {
+        this.setState({ filterModalVisible: visible });
     }
 
     renderPlayButton() {
@@ -1016,6 +1235,30 @@ const styles = {
     soundImageStyle: {
         width: APP_WIDTH,
         height: APP_HEIGHT / 2
+    },
+    soundDetailCheckBoxesContainerStyle: {
+        width: APP_WIDTH - (APP_WIDTH * 0.1)
+    },
+    tableStyle: {
+        width: APP_WIDTH - (APP_WIDTH * 0.1)
+    },
+    tableBorderStyle: {
+        borderWidth: 0.5, borderColor: '#c8e1ff'
+    },
+    tableHeadStyle: {
+        backgroundColor: '#f1f8ff',
+        height: 50
+    },
+    tableHeadTextStyle: {
+        textAlign: 'center',
+        fontSize: 18,
+        fontWeight: 'bold'
+    },
+    tableBodyStyle: {
+        height: 60
+    },
+    tableBodyTextStyle: {
+        textAlign: 'center'
     }
 };
 
