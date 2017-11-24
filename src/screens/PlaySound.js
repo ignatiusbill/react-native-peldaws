@@ -114,7 +114,7 @@ class PlaySound extends Component {
             jitterOnTimeRange: <Button title={GO_STRING} onPress={() => this.fetchJitterOnTimeRange()} />,
 
             /* END OF STATES FOR SOUND DETAILS (GROUPED BY FUNCTIONALITY) */
-
+            
             // rowVisibilityArrays' content has a tight coupling with data inside the function renderModal().
             // Be careful when modifying one or the other.
             rowVisibilityArrays: {
@@ -382,8 +382,7 @@ class PlaySound extends Component {
                 ],
                 tableDescription: [
                     'Energy'
-                ],
-                rowVisibilityArray: [true]
+                ]
             },
             pitch: {
                 tableHead: ['Pitch'],
@@ -398,8 +397,7 @@ class PlaySound extends Component {
                     '# of Voiced Frames',
                     'Value at time X',
                     'Value in frame X'
-                ],
-                rowVisibilityArray: [true, true, true, true]
+                ]
             },
             spectrum: {
                 tableHead: ['Spectrum'],
@@ -408,8 +406,7 @@ class PlaySound extends Component {
                 ],
                 tableDescription: [
                     'Min./Max. Frequency'
-                ],
-                rowVisibilityArray: [true]
+                ]
             },
             intensity: {
                 tableHead: ['Intensity'],
@@ -422,8 +419,7 @@ class PlaySound extends Component {
                     'Average of Intensity between time X and Y',
                     'Min./Max. Intensity',
                     'Average of Intensity'
-                ],
-                rowVisibilityArray: [true, true, true]
+                ]
             },
             formant: {
                 tableHead: ['Formant'],
@@ -436,8 +432,7 @@ class PlaySound extends Component {
                     '# of Frames',
                     '# of Formants at frame X',
                     'Formant value at formant X'
-                ],
-                rowVisibilityArray: [true, true, true]
+                ]
             },
             harmonicity: {
                 tableHead: ['Harmonicity'],
@@ -450,8 +445,7 @@ class PlaySound extends Component {
                     'Min. harmonicity between time X and Y',
                     'Max. harmonicity between time X and Y',
                     'Harmonicity at time X'
-                ],
-                rowVisibilityArray: [true, true, true]
+                ]
             },
             pointProcess: {
                 tableHead: ['PointProcess'],
@@ -464,8 +458,7 @@ class PlaySound extends Component {
                     '# of Periods between time X and Y',
                     '# of Points',
                     'Jitter between time X and Y'
-                ],
-                rowVisibilityArray: [true, true, true]
+                ]
             },
         };
 
