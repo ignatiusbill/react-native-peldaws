@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text, TouchableOpacity, Slider, Image, Dimensions, ScrollView, Modal, Button, TextInput, Alert, TouchableWithoutFeedback, Keyboard } from 'react-native';
-import { Icon, CheckBox } from 'react-native-elements';
+import { Icon, CheckBox, normalize } from 'react-native-elements';
 import axios from 'axios';
 import { Table, Row, Rows } from 'react-native-table-component';
 import Spinner from '../components/Spinner';
@@ -34,6 +34,15 @@ class PlaySound extends Component {
             playbackInstanceDuration: null,
 
             /* END OF STATES FOR SOUND OBJECT */
+
+            /* START OF STATES FOR TIME PICKER BUTTONS */
+
+            pickingT1: false,
+            t1 : null,
+            pickingT2: false,
+            t2: null,
+
+            /* END OF STATES FOR TIME PICKER BUTTONS */
 
             /* START OF STATES FOR SOUND DETAILS (GROUPED BY FUNCTIONALITY) */
             
@@ -258,17 +267,19 @@ class PlaySound extends Component {
 
     renderSoundPlaybackInstance() {
         const { soundName } = this.props;
-        const { fetchingSoundObj, soundObj, soundDetailModalVisible } = this.state;
-        const { playbackSliderStyle, containerStyle } = styles;
+        const { fetchingSoundObj, soundObj, soundDetailModalVisible, pickingT1, pickingT2 } = this.state;
+        const { playbackSliderStyle, containerStyle, normalSoundPlaybackContainerStyle, darkSoundPlaybackContainerStyle } = styles;
         
         if (fetchingSoundObj) return <Spinner />;
 
         if (soundObj) {
             return (
-                <View style={containerStyle}>
-                    <Text>Currently playing: {soundName}</Text>
+                <View style={pickingT1 || pickingT2 ? darkSoundPlaybackContainerStyle : normalSoundPlaybackContainerStyle}>
+                    <Text style={{ fontSize: 18, padding: 3 }}>Currently playing: {soundName}</Text>
 
                     {this.renderSoundImage()}
+
+                    {this.renderTimePickerButtons()}
 
                     <Slider 
                         style={playbackSliderStyle} 
@@ -351,6 +362,25 @@ class PlaySound extends Component {
         };
         return padWithZero(minutes) + ':' + padWithZero(seconds);
     }
+
+    handlePress(event) {
+        const { pickingT1, pickingT2, playbackInstanceDuration } = this.state;
+
+        const locationX = event.nativeEvent.locationX;
+        const startOfGraph = 0.104 * APP_WIDTH; // approximately
+        const endOfGraph = 0.9825 * APP_WIDTH; // approximately
+        const widthOfGraph = endOfGraph - startOfGraph;
+
+        if (locationX > startOfGraph && locationX < endOfGraph) {
+            const audioDurationInSeconds = playbackInstanceDuration / 1000;
+            const timeInSeconds = (locationX - startOfGraph) / widthOfGraph* audioDurationInSeconds;
+            if (pickingT1) {
+                this.setState({ t1: timeInSeconds, pickingT1: !pickingT1 });
+            } else if (pickingT2) {
+                this.setState({ t2: timeInSeconds, pickingT2: !pickingT2 });
+            }
+        }
+    }
     
     renderSoundImage() {
         const { soundName } = this.props;
@@ -363,11 +393,53 @@ class PlaySound extends Component {
         );
         
         return (
-            <Image
-                style={soundImageStyle}
-                resizeMode='stretch'
-                source={{ uri: soundImageURI }}
-            />
+            <TouchableWithoutFeedback onPress={event => this.handlePress(event)}>
+                <Image
+                    style={soundImageStyle}
+                    resizeMode='stretch'
+                    source={{ uri: soundImageURI }}
+                />
+            </TouchableWithoutFeedback>
+        );
+    }
+
+    renderTimePickerButtons() {
+        const { pickingT1, pickingT2 } = this.state;
+
+        /*
+
+        00 - t1 is false, t2 is false => if one of them is pressed, 00 -> 01 or 10
+        when current state is 01, it can only go back to 00. It can't go from 01 to 11.
+        Same thing with 10.
+
+        */
+
+        handleStartTimePress = (time) => {
+            if ((!pickingT1 && !pickingT2) || time) {
+                this.setState({ pickingT1: !time });
+            }
+        }
+
+        handleEndTimePress = (time) => {
+            if ((!pickingT1 && !pickingT2) || time) {
+                this.setState({ pickingT2: !time });
+            }
+        }
+
+        return (
+            <View style={styles.timePickerButtonsContainerStyle}>
+                <Button 
+                    title={'Pick Start Time (T1)'}
+                    onPress={() => handleStartTimePress(pickingT1)}
+                    disabled={pickingT2}
+                />
+                
+                <Button 
+                    title={'Pick End Time (T2)'}
+                    onPress={() => handleEndTimePress(pickingT2)}
+                    disabled={pickingT1}
+                />
+            </View>
         );
     }
 
@@ -1172,12 +1244,14 @@ class PlaySound extends Component {
     }
 
     renderShowModalButton() {
-        const { soundDetailModalVisible } = this.state;
+        const { soundDetailModalVisible, pickingT1, pickingT2 } = this.state;
 
         return (
             <Button
                 title='More Details'
                 onPress={() => this.setSoundDetailModalVisible(!soundDetailModalVisible)}
+                style={{ padding: 3 }}
+                disabled={pickingT1 || pickingT2}
             />
         );
     }
@@ -1191,11 +1265,12 @@ class PlaySound extends Component {
     }
 
     renderPlayButton() {
-        const { isPlaying } = this.state;
+        const { isPlaying, pickingT1, pickingT2 } = this.state;
         
         return (
             <TouchableOpacity
                 onPress={() => this.onPlayPausePressed()}
+                disabled={pickingT1 || pickingT2}
             >
                 <Icon 
                     reverse
@@ -1222,18 +1297,36 @@ const styles = {
         alignItems: 'center',
         justifyContent: 'center'
     },
+    normalSoundPlaybackContainerStyle: {
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    darkSoundPlaybackContainerStyle: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'darkgrey'
+    },
     playbackSliderStyle: {
-        alignSelf: 'stretch'
+        alignSelf: 'stretch',
+        padding: 5
     },
     soundImageStyle: {
         width: APP_WIDTH,
-        height: APP_HEIGHT / 2
+        height: APP_HEIGHT / 2,
+        padding: 3
+    },
+    timePickerButtonsContainerStyle: { 
+        flex: 1, 
+        flexDirection: 'row', 
+        alignSelf: 'center', 
+        justifyContent: 'space-around', 
+        padding: 5 
     },
     soundDetailCheckBoxesContainerStyle: {
-        width: APP_WIDTH - (APP_WIDTH * 0.1)
+        width: 0.9 * APP_WIDTH
     },
     tableStyle: {
-        width: APP_WIDTH - (APP_WIDTH * 0.1)
+        width: 0.9 * APP_WIDTH
     },
     tableBorderStyle: {
         borderWidth: 0.5, borderColor: '#c8e1ff'
