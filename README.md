@@ -1,5 +1,7 @@
 # react-native-peldaws
-Mobile version of PELDAWS. Developed in React Native
+Mobile version of PELDAWS. Developed in React Native. 
+
+Note: React Native projects can be compiled to an iOS or Android app. I don't have an iPhone, so I've only tested this on my OnePlus 5/Nexus 5 (Android).
 
 ## Setup
 
