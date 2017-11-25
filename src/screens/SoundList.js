@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, ScrollView } from 'react-native';
+import { Text, View, ScrollView } from 'react-native';
 import axios from 'axios';
 import { List, ListItem } from 'react-native-elements';
 import { Actions } from 'react-native-router-flux';

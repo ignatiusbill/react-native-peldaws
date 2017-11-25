@@ -5,7 +5,7 @@ import PlaySound from './screens/PlaySound';
 
 const RouterComponent = () => {
     return (
-        <Router sceneStyle={{ paddingTop: 65 }}>
+        <Router sceneStyle={{ paddingTop: 25 }}>
             <Scene key="sound">
                 <Scene 
                     key="soundList"

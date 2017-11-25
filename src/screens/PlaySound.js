@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { View, Text, TouchableOpacity, Slider, Image, Dimensions, ScrollView, Modal, Button, TextInput, Alert, TouchableWithoutFeedback, Keyboard, Clipboard, ToastAndroid } from 'react-native';
+import { View, Text, TouchableOpacity, Slider, Image, Dimensions, ScrollView, Modal, Button, TextInput, Alert, TouchableWithoutFeedback, Clipboard, ToastAndroid } from 'react-native';
 import { Icon, CheckBox, normalize } from 'react-native-elements';
 import axios from 'axios';
-import { Table, Row, Rows } from 'react-native-table-component';
+import { Table, Row } from 'react-native-table-component';
 import Spinner from '../components/Spinner';
 import { BASE_URL } from '../url';
 
@@ -769,10 +769,14 @@ class PlaySound extends Component {
         );
     }
 
+    showErrorMessageForSingleTimeParam() {
+        Alert.alert('Please enter a value of 0 or bigger');
+    }
+
     fetchPitchAt(time) {
         const valueOfTime = new Number(time).toString();
         if (valueOfTime === NAN_STRING || valueOfTime < 0) {
-            Alert.alert('Please enter a value of 0 or bigger');
+            this.showErrorMessageForSingleTimeParam();
             return;
         }
 
@@ -811,7 +815,7 @@ class PlaySound extends Component {
     fetchValueAtTime(time) {
         const valueOfTime = new Number(time).toString();
         if (valueOfTime === NAN_STRING || valueOfTime < 0) {
-            Alert.alert('Please enter a value of 0 or bigger');
+            this.showErrorMessageForSingleTimeParam();
             return;
         }
 
@@ -850,7 +854,7 @@ class PlaySound extends Component {
     fetchHarmonicityAtTime(time) {
         const valueOfTime = new Number(time).toString();
         if (valueOfTime === NAN_STRING || valueOfTime < 0) {
-            Alert.alert('Please enter a value of 0 or bigger');
+            this.showErrorMessageForSingleTimeParam();
             return;
         }
 
@@ -889,7 +893,7 @@ class PlaySound extends Component {
     fetchValueInFrame(frame) {
         const valueOfFrame = new Number(frame).toString();
         if (valueOfFrame === NAN_STRING || valueOfFrame < 0) {
-            Alert.alert('Please enter a value of 0 or bigger');
+            this.showErrorMessageForSingleTimeParam();
             return;
         }
 
@@ -928,7 +932,7 @@ class PlaySound extends Component {
     fetchFormantInFrame(frame) {
         const valueOfFrame = new Number(frame).toString();
         if (valueOfFrame === NAN_STRING || valueOfFrame < 0) {
-            Alert.alert('Please enter a value of 0 or bigger');
+            this.showErrorMessageForSingleTimeParam();
             return;
         }
 
@@ -978,16 +982,24 @@ class PlaySound extends Component {
         );
     }
 
+    showErrorMessageForStartTimeParam() {
+        Alert.alert('Please enter a start time of 0 or bigger');
+    }
+
+    showErrorMessageForEndTimeParam() {
+        Alert.alert('Please enter an end time of 0 or bigger');
+    }
+
     fetchIntensityOnTimeRange() {
         const { startTimeForIntensity, endTimeForIntensity } = this.state;
         const valueOfStartTime = new Number(startTimeForIntensity).toString();
         const valueOfEndTime = new Number(endTimeForIntensity).toString();
         if (valueOfStartTime === NAN_STRING || valueOfStartTime < 0) {
-            Alert.alert('Please enter a start time of 0 or bigger');
+            this.showErrorMessageForStartTimeParam();
             return;
         }
         if (valueOfEndTime === NAN_STRING || valueOfEndTime < 0) {
-            Alert.alert('Please enter an end time of 0 or bigger');
+            this.showErrorMessageForEndTimeParam();
             return;
         }
 
@@ -1044,11 +1056,11 @@ class PlaySound extends Component {
         const valueOfStartTime = new Number(startTimeForMinHarmonicity).toString();
         const valueOfEndTime = new Number(endTimeForMinHarmonicity).toString();
         if (valueOfStartTime === NAN_STRING || valueOfStartTime < 0) {
-            Alert.alert('Please enter a start time of 0 or bigger');
+            this.showErrorMessageForStartTimeParam();
             return;
         }
         if (valueOfEndTime === NAN_STRING || valueOfEndTime < 0) {
-            Alert.alert('Please enter an end time of 0 or bigger');
+            this.showErrorMessageForEndTimeParam();
             return;
         }
 
@@ -1100,11 +1112,11 @@ class PlaySound extends Component {
         const valueOfStartTime = new Number(startTimeForMaxHarmonicity).toString();
         const valueOfEndTime = new Number(endTimeForMaxHarmonicity).toString();
         if (valueOfStartTime === NAN_STRING || valueOfStartTime < 0) {
-            Alert.alert('Please enter a start time of 0 or bigger');
+            this.showErrorMessageForStartTimeParam();
             return;
         }
         if (valueOfEndTime === NAN_STRING || valueOfEndTime < 0) {
-            Alert.alert('Please enter an end time of 0 or bigger');
+            this.showErrorMessageForEndTimeParam();
             return;
         }
 
@@ -1156,11 +1168,11 @@ class PlaySound extends Component {
         const valueOfStartTime = new Number(startTimeForPeriodCount).toString();
         const valueOfEndTime = new Number(endTimeForPeriodCount).toString();
         if (valueOfStartTime === NAN_STRING || valueOfStartTime < 0) {
-            Alert.alert('Please enter a start time of 0 or bigger');
+            this.showErrorMessageForStartTimeParam();
             return;
         }
         if (valueOfEndTime === NAN_STRING || valueOfEndTime < 0) {
-            Alert.alert('Please enter an end time of 0 or bigger');
+            this.showErrorMessageForEndTimeParam();
             return;
         }
 
@@ -1212,11 +1224,11 @@ class PlaySound extends Component {
         const valueOfStartTime = new Number(startTimeForJitter).toString();
         const valueOfEndTime = new Number(endTimeForJitter).toString();
         if (valueOfStartTime === NAN_STRING || valueOfStartTime < 0) {
-            Alert.alert('Please enter a start time of 0 or bigger');
+            this.showErrorMessageForStartTimeParam();
             return;
         }
         if (valueOfEndTime === NAN_STRING || valueOfEndTime < 0) {
-            Alert.alert('Please enter an end time of 0 or bigger');
+            this.showErrorMessageForEndTimeParam();
             return;
         }
 
@@ -1263,16 +1275,20 @@ class PlaySound extends Component {
         );
     }
 
+    showErrorMessageForSingleFormantParam() {
+        Alert.alert('Please enter a formant of 0 or bigger');
+    }
+
     fetchValueAtFormantAndTime() {
         const { formantForValue, timeForValue } = this.state;
         const valueOfFormant = new Number(formantForValue).toString();
         const valueOfTime = new Number(timeForValue).toString();
         if (valueOfFormant === NAN_STRING || valueOfFormant < 0) {
-            Alert.alert('Please enter a formant of 0 or bigger');
+            this.showErrorMessageForSingleFormantParam();
             return;
         }
         if (valueOfTime === NAN_STRING || valueOfTime < 0) {
-            Alert.alert('Please enter an end time of 0 or bigger');
+            this.showErrorMessageForEndTimeParam();
             return;
         }
 
@@ -1312,6 +1328,10 @@ class PlaySound extends Component {
         }
     }
 
+    copyNumberToClipboard(n) {
+        Clipboard.setString(n ? n.toFixed(DECIMAL_PLACE) + '' : ' ');
+    }
+
     renderCopyT1AndT2ValueButtons() {
         const { t1, t2 } = this.state;
 
@@ -1320,14 +1340,14 @@ class PlaySound extends Component {
                 <Button 
                     title={"Copy T1's value"}
                     onPress={() => {
-                        Clipboard.setString(t1 ? t1.toFixed(DECIMAL_PLACE) + '' : ' ');
+                        this.copyNumberToClipboard(t1);
                         this.showCopiedToClipboardToast(t1);
                     }}
                 />
                 <Button 
                     title={"Copy T2's value"}
                     onPress={() => {
-                        Clipboard.setString(t2 ? t2.toFixed(DECIMAL_PLACE) + '' : ' ');
+                        this.copyNumberToClipboard(t2);
                         this.showCopiedToClipboardToast(t2);
                     }}
                 />
