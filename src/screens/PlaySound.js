@@ -1,5 +1,20 @@
 import React, { Component } from 'react';
-import { View, Text, TouchableOpacity, Slider, Image, Dimensions, ScrollView, Modal, Button, TextInput, Alert, TouchableWithoutFeedback, Clipboard, ToastAndroid } from 'react-native';
+import { 
+    View, 
+    Text, 
+    TouchableOpacity, 
+    Slider, 
+    Image, 
+    Dimensions, 
+    ScrollView, 
+    Modal, 
+    Button, 
+    TextInput, 
+    Alert, 
+    TouchableWithoutFeedback, 
+    Clipboard, 
+    ToastAndroid 
+} from 'react-native';
 import { Icon, CheckBox, normalize } from 'react-native-elements';
 import axios from 'axios';
 import { Table, Row } from 'react-native-table-component';
@@ -8,23 +23,25 @@ import { BASE_URL } from '../url';
 
 /* START OF GLOBAL VARIABLES */
 
-// Don't modify these dynamically! You can modify this manually, especially the numbers (int/double/float), as long as you know what you're doing.
+// Don't modify these dynamically! You can modify this manually AS LONG AS you know what you're doing, especially the numbers (int/double/float).
 const WINDOW = Dimensions.get('window');
 const APP_HEIGHT = WINDOW.height;
 const APP_WIDTH = WINDOW.width;
+const NUMBER_OF_SECTIONS = 18;
+const DECIMAL_PLACE = 6;
 const AXIOS_ERR = 'Fetch failed';
 const LOADING_STRING = 'Loading';
 const NAN_STRING = 'NaN';
 const GO_STRING = 'Go';
-const NUMBER_OF_SECTIONS = 18;
-const DECIMAL_PLACE = 6;
 
 /* END OF GLOBAL VARIABLES */
 
 class PlaySound extends Component {
     constructor(props) {
         super(props);
-        this.isSeeking = false;
+
+        this.isSeeking = false; // whether you're seeking on the Slider
+
         this.state = {
             /* START OF STATES FOR SOUND OBJECT */
 
@@ -124,9 +141,11 @@ class PlaySound extends Component {
             jitterOnTimeRange: this.renderGetJitterOnTimeRangeButton(),
 
             /* END OF STATES FOR SOUND DETAILS (GROUPED BY FUNCTIONALITY) */
-            
-            // rowVisibilityArrays' content has a tight coupling with data inside the function renderModal().
-            // Be careful when modifying one or the other.
+
+            /*
+            rowVisibilityArrays' content has a tight coupling with data inside the function renderModal().
+            Be careful when modifying one or the other.
+            */
             rowVisibilityArrays: {
                 sound: { rowVisibilityArray: [true] },
                 pitch: { rowVisibilityArray: [true, true, true, true] },
@@ -412,9 +431,16 @@ class PlaySound extends Component {
 
         /*
 
-        00 - t1 is false, t2 is false => if one of them is pressed, 00 -> 01 or 10
-        when current state is 01, it can only go back to 00. It can't go from 01 to 11.
+        00 means t1 is false and t2 is false. If one of them is pressed, 00 -> 01 or 10.
+        When the current state is 01, it can only go back to 00. It can't go from 01 to 11.
         Same thing with 10.
+
+        Acceptable state transitions:
+        00 -> 01/10
+        01/10 -> 00
+
+        Unacceptable state:
+        01/10 -> 11 as this might cause confusion when user's being asked for input
 
         */
 
@@ -461,8 +487,10 @@ class PlaySound extends Component {
     }
 
     renderModal() {
-        // data's content has a tight coupling with rowVisibilityArrays inside this component's state.
-        // Be careful when modifying one or the other.
+        /*
+        data's content has a tight coupling with rowVisibilityArrays inside this component's state.
+        Be careful when modifying one or the other.
+        */
         const data = {
             sound: {
                 tableHead: ['Sound'],
