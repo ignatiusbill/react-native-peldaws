@@ -281,6 +281,8 @@ class PlaySound extends Component {
 
                     {this.renderTimePickerButtons()}
 
+                    {this.renderPickedStartAndEndTime()}
+
                     <Slider 
                         style={playbackSliderStyle} 
                         value={this.getSeekSliderPosition()}
@@ -427,18 +429,31 @@ class PlaySound extends Component {
         }
 
         return (
-            <View style={styles.timePickerButtonsContainerStyle}>
+            <View style={styles.timePickerContainerStyle}>
                 <Button 
                     title={'Pick Start Time (T1)'}
                     onPress={() => handleStartTimePress(pickingT1)}
                     disabled={pickingT2}
+                    style={{ alignSelf: 'center' }}
                 />
                 
                 <Button 
                     title={'Pick End Time (T2)'}
                     onPress={() => handleEndTimePress(pickingT2)}
                     disabled={pickingT1}
+                    style={{ alignSelf: 'center' }}
                 />
+            </View>
+        );
+    }
+
+    renderPickedStartAndEndTime() {
+        const { t1, t2 } = this.state;
+
+        return (
+            <View style={styles.timePickerContainerStyle}>
+                <Text>T1: {t1 ? t1.toFixed(3) : 'null'}</Text>
+                <Text>T2: {t2 ? t2.toFixed(3) : 'null'}</Text>
             </View>
         );
     }
@@ -1315,10 +1330,10 @@ const styles = {
         height: APP_HEIGHT / 2,
         padding: 3
     },
-    timePickerButtonsContainerStyle: { 
+    timePickerContainerStyle: { 
         flex: 1, 
         flexDirection: 'row', 
-        alignSelf: 'center', 
+        alignSelf: 'stretch', 
         justifyContent: 'space-around', 
         padding: 5 
     },
