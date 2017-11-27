@@ -1,7 +1,7 @@
 {
-  "name": "react-native-peldaws",
+  "name": "pelda",
   "version": "0.0.0",
-  "description": "Mobile version of PELDAWS. Developed in React Native",
+  "description": "Mobile version of PELDA. Developed in React Native.",
   "author": null,
   "private": true,
   "main": "node_modules/expo/AppEntry.js",
